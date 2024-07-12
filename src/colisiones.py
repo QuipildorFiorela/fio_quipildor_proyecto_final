@@ -22,19 +22,20 @@ def distancia_entre_puntos(pto_1:tuple[int, int], pto_2:tuple[int, int]) -> floa
     altura = pto_1[1] - pto_2[1] 
     return (base ** 2 + altura ** 2) ** 0.5
 
-def manejar_colision(character_rect, object_list, collision_sound_path=None, special=False):
+def manejar_colision(personaje, character_rect, object_list, collision_sound_path=None, special=False): #character rect es la hitbox con la cual comparo
     collision_sound_temp = pygame.mixer.Sound(collision_sound_path)
     for obj in object_list[:]:  # Guardar una copia de la lista para iterar
         if character_rect.colliderect(obj["rect"]):  # la función colliderect() de Pygame, específicamente diseñada para detectar colisiones entre rectángulos.
-            if obj['type'] == 'medusa': #caso colison con enemigo
+            if obj['type'] == 'medusa':  # caso colisión con enemigo
                 if special:
                     obj['vida'] -= 2
                     print("piumm special")
                     if obj['vida'] <= 0:
                         object_list.remove(obj)
+                        collision_sound_temp.play()
                 else:
                     obj['vida'] -= 1
-                    print("pium -1")
+                    print("pium -1 bala normal")
                     if obj['vida'] <= 0:
                         object_list.remove(obj)
                         collision_sound_temp.play()
@@ -43,6 +44,18 @@ def manejar_colision(character_rect, object_list, collision_sound_path=None, spe
             else:
                 object_list.remove(obj)
                 collision_sound_temp.play()
+            return True
+    return False
+
+def manejar_colision_con_personaje(personaje, medusas_list, collision_sound_path=None):
+    collision_sound_temp = pygame.mixer.Sound(collision_sound_path)
+    for medusa in medusas_list[:]:  # Guardar una copia de la lista para iterar
+        if personaje['rect'].colliderect(medusa['rect']):
+            print("fio golpeada!!!!!!!")
+            medusas_list.remove(medusa)
+            collision_sound_temp.play()
+            personaje['vidas'] -= 1
+            print("fio pierde vida!!!!!!!")
             
             return True
     return False
@@ -50,22 +63,8 @@ def manejar_colision(character_rect, object_list, collision_sound_path=None, spe
 #special ------------------------------
 def manejar_special_attack_collision(personaje, nueva_imagen_path, nueva_bala_imagen_path, screen_height):
     personaje['imagen'] = pygame.image.load(nueva_imagen_path).convert_alpha()
-    personaje['imagen'] = pygame.transform.scale(personaje['imagen'], PLAYER_SIZE)
+    personaje['imagen'] = pygame.transform.scale(personaje['imagen'], FIO_SIZE)
     personaje['bala_imagen_path'] = nueva_bala_imagen_path
     personaje['rect'].size = personaje['imagen'].get_size()  # Asegúrate de actualizar el rectángulo del personaje
     personaje['rect'].bottom = screen_height  # Ajustar la posición del rectángulo del personaje
     personaje['balas_disponibles'] += SPECIAL_BULLETS_QTY
-
-#ENEMY
-
-def ataque_rayo_colision(personaje):
-    # Detectar colisiones de rayos con el personaje
-        for rayo in rayos_list[:]:
-            if personaje['rect'].colliderect(rayo['rect']):
-                personaje['vida'] -= rayo['damage']
-                pygame.mixer.Sound(musica["rayo_colision_sound"]).play()
-                rayos_list.remove(rayo)
-                if personaje['vida'] <= 0:
-                    # Manejar la lógica de fin del juego si el personaje muere
-                    mostrar_juego_flag = False
-                    mostrar_game_over_flag = True

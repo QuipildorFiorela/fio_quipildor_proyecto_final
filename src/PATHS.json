@@ -10,6 +10,13 @@
         "heavy_machine_gun_sound": "sound_effects\\special_sounds\\HM_GUN.mp3",
         "medusa_explosion_sound": "sound_effects\\enemies_sound\\explosion_enemies.mp3",
         "rayo_sound": "sound_effects\\enemies_sound\\electric_medusa.mp3",
-        "rayo_colision_sound": "sound_effects\\enemies_sound\\electric_medusa_killing.mp3"
+        "rayo_colision_sound": "sound_effects\\enemies_sound\\electric_medusa_killing.mp3",
+        "fio_death_sound": "fio_sounds\\fio_death_scream.mp3",
+        "electric_medusa_killing_sound": "sound_effects\\enemies_sound\\electric_medusa_killing.mp3",
+        "electric_medusa_sound": "sound_effects\\enemies_sound\\electric_medusa.mp3",
+        "game_over_sound": "sound_effects\\special_sounds\\game_over.mp3"
+    },
+    "imagenes": {
+        
     }
 }

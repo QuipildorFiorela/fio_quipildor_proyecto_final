@@ -1,12 +1,10 @@
 import pygame
 import sys
-import random
-
 from settings import *
 from character import *
 from enemies import *
 from objetos import *
-from colisiones import manejar_colision, ataque_rayo_colision, manejar_special_attack_collision
+from colisiones import manejar_colision, manejar_special_attack_collision, manejar_colision_con_personaje
 from def_archivos import *
 from pantallas import *
 from files import musica
@@ -20,34 +18,15 @@ pygame.display.set_caption("FIO'S SPACE ATTACK")
 icono = pygame.image.load("images\\fio_icon.png")
 pygame.display.set_icon(icono)
 
-# Creo al personaje -----------------------------------------------------------------------------
-
-personaje = crear_personaje(HALF_WIDTH, HEIGHT -115, PLAYER_SPEED, DEFAULT_IMAGE_PATH_PLAYER, DEFAULT_PATH_BALA , WIDTH, HEIGHT)
-
-
-# Creo los items----------------------------------------------------------------------------------
-coins_list = []
-load_object_list(coins_list, 'coin', 0, 'items_sprites\\coins.png')
-last_coin_spawn_time = 0 
-coin_spawn_interval = 2000  # Intervalo de tiempo en milisegundos para crear una nueva moneda
-
-special_gun_list = []
-load_object_list(special_gun_list, 'special_gun', 0, 'items_sprites\\heavy_machine_gun.png')
-last_shoot_spawn_time = 0
-shoot_spawn_interval = 15000
-
-
-#CONTADOR PUNTOS----------------------------------------------------------------------------------
-score = 0
-
-#ARCHIVO CSV
-
 
 #FLAGS ------------------------------------------------------------------------------------------------
 mostrar_inicio_flag = True
 mostrar_tutorial_flag = False
 mostrar_juego_flag = False
 mostrar_game_over_flag = False
+mostrar_view_scores_flag = False
+mostrando_animacion_muerte = False
+pedir_nombre = True
 
 
 # Variables de control----------------------------------------------------------------------------------
@@ -66,15 +45,34 @@ continuar = False
 #region Bucle del juego_________________________________________________________________________________________
 while running:
     current_time = pygame.time.get_ticks() #tiempo actual en milisegundos desde que comenzó el juego
-    
     # Pantalla inicial
     if mostrar_inicio_flag:
+        #creo al personaje y a los demas objetos cada vez que se entre al inicio para que vuelvan a su estado default al comenzar una nueva partida
+        personaje = crear_personaje(HALF_WIDTH, HEIGHT -115, PLAYER_SPEED, DEFAULT_IMAGE_PATH_PLAYER, DEFAULT_PATH_BALA , WIDTH, HEIGHT)
+
+        medusas_list = []
+        load_object_list(medusas_list, 'medusa', 0, 'enemies_sprites\\enemy_medusa.png')
+        last_medusa_spawn_time = 0
+        medusa_spawn_interval = 1500
+
+        coins_list = []
+        load_object_list(coins_list, 'coin', 0, 'items_sprites\\coins.png')
+        last_coin_spawn_time = 0
+        coin_spawn_interval = 2000  # Intervalo de tiempo en milisegundos para crear una nueva moneda
+
+        special_gun_list = []
+        load_object_list(special_gun_list, 'special_gun', 0, 'items_sprites\\heavy_machine_gun.png')
+        last_shoot_spawn_time = 0
+        shoot_spawn_interval = 10000
+
+        score = 0
         mostrar_pantalla_inicio(SCREEN)
+        # personaje = restart_personaje(personaje)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN: #eventon del click del mouse
-                if boton_play.collidepoint(event.pos): #si tocan el boton de play 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if BOTON_PLAY.collidepoint(event.pos): #si tocan el boton
                     pygame.mixer.Sound(musica["fio_start_game_sound"]).play()
                     pygame.mixer.music.stop() #paro la musica del menu
                     playing_music_flag = False
@@ -82,122 +80,161 @@ while running:
 
                     pygame.time.wait(2000)# Establece el tiempo para mostrar "Mission Start" después de 2 segundos
                     mostrar_mission_start(SCREEN)
+                    mostrar_juego_flag = True
+                    start_time = pygame.time.get_ticks()
 
                     pygame.mixer.music.load(musica["game_music"])
                     pygame.mixer.music.set_volume(0.3)
                     pygame.mixer.music.play()
                     playing_music_flag = True
 
-                    mostrar_juego_flag = True
-                    start_time = pygame.time.get_ticks()
-                    
-                if boton_exit.collidepoint(event.pos):
+                if BOTON_EXIT.collidepoint(event.pos):
                     running = False
-                if boton_tutorial.collidepoint(event.pos):
+                if BOTON_TUTORIAL.collidepoint(event.pos):
                     pygame.mixer.Sound(musica["press_button_sound"]).play()
                     mostrar_inicio_flag = False
                     mostrar_tutorial_flag = True
-                if boton_view_score.collidepoint(event.pos):
+                if BOTON_VIEW_SCORE.collidepoint(event.pos):
                     pygame.mixer.Sound(musica["press_button_sound"]).play()
-                    pass
+                    mostrar_inicio_flag = False
+                    mostrar_view_scores_flag = True
 
-    if mostrar_tutorial_flag:
-        mostrar_tutorial(SCREEN)
+    elif mostrar_tutorial_flag:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    pygame.mixer.Sound(musica["press_button_sound"]).play()
+                    current_image_index += 1
+                    if current_image_index >= len(tutorial_path_list):
+                        current_image_index = 0
                 if event.key == pygame.K_BACKSPACE:  # Volver a la pantalla de inicio con Backspace
                     pygame.mixer.Sound(musica["press_button_sound"]).play()
                     mostrar_tutorial_flag = False
                     mostrar_inicio_flag = True
+        mostrar_tutorial(SCREEN, tutorial_path_list, current_image_index)
 
-    if mostrar_juego_flag:
-    #Procesamiento de eventos
+    elif mostrar_view_scores_flag:
+        mostrar_scores(SCREEN)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:  # disparar al presionar la flecha hacia arriba
-                    disparar_bala(personaje)
-                    pygame.mixer.Sound(musica["basic_shoot_gun_sound"]).play()
+                if event.key == pygame.K_BACKSPACE:  
+                        pygame.mixer.Sound(musica["press_button_sound"]).play()
+                        mostrar_view_scores_flag = False
+                        mostrar_inicio_flag = True
+        pygame.display.flip()
+
+    elif mostrar_juego_flag:
+        #Procesamiento de eventos-------------------
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:# disparar al presionar la flecha hacia arriba
+                        disparar_bala(personaje)
+                        pygame.mixer.Sound(musica["basic_shoot_gun_sound"]).play()
                 if event.key == pygame.K_p:  # Pausar o reanudar el juego
                     pause_on(SCREEN)
-                    wait_user(pygame.K_p, playing_music_flag)
+                    pause_duration = wait_user(pygame.K_p, playing_music_flag, start_time)
+                    start_time += pause_duration
                 if event.key == pygame.K_m:
-                    if playing_music_flag:
-                        mute_on(SCREEN)
-                        pygame.mixer.music.pause()
-                        playing_music_flag = False
-                        
-                    else:
-                        pygame.mixer.music.unpause()
-                        playing_music_flag = True
-
+                    playing_music_flag = not playing_music_flag #cuando se toca m, invierto el estado de la flag
+        if playing_music_flag: #not invierte un booleano
+            pygame.mixer.music.unpause()
+        else:
+            mute_on(SCREEN)
+            pygame.mixer.music.pause()
+            pygame.display.flip()
         # Manejo del estado de las teclas para movimiento fluido con get pressed
-        keys = pygame.key.get_pressed()  # quiero que mientras mantenga la tecla presionada se mueva
+        keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             mover_personaje(personaje, 'izquierda')
         if keys[pygame.K_RIGHT]:
             mover_personaje(personaje, 'derecha')
 
-        # Crear nuevas monedas 
+        # Crear nuevas monedas, el ataque especial y las medusas--------------
         if (current_time - start_time) - last_coin_spawn_time >= coin_spawn_interval:
             coins_list.append(create_object('coin', 'items_sprites\\coins.png'))
             last_coin_spawn_time = (current_time - start_time)
-        
-        # Crear el ataque especial
+
         if (current_time - start_time) - last_shoot_spawn_time >= shoot_spawn_interval:
             special_gun_list.append(create_object('special_gun', 'items_sprites\\heavy_machine_gun.png'))
             last_shoot_spawn_time = (current_time - start_time)
 
-        # Crear enemigos 
         if (current_time - start_time) - last_medusa_spawn_time >= medusa_spawn_interval:
-            medusas_list.append(create_enemy('medusa', 'enemies_sprites\\enemy_medusa.png'))
-            last_medusa_spawn_time = (current_time - start_time)
+            for _ in range(2):
+                medusas_list.append(create_enemy('medusa', 'enemies_sprites\\enemy_medusa.png'))
+                last_medusa_spawn_time = (current_time - start_time)
 
-        # movimiento de las balas
-        mover_balas(personaje, HEIGHT)
-
-        # Movimiento de las monedas, balas y enemigos
+        # Movimiento de las monedas, balas y enemigos---------------
         move_objects(coins_list, HEIGHT)
         move_objects(special_gun_list, HEIGHT)
         move_objects(medusas_list, HEIGHT)
+        mover_balas(personaje, HEIGHT)
 
-        # colisiones
-        if manejar_colision(personaje['rect'], coins_list, musica["coin_sound"]):
+        # colisiones--------------------------------------
+        if manejar_colision(personaje, personaje['rect'], coins_list, musica["coin_sound"]):
             print("coins!!")
             score = actualizar_puntos(score, COIN_POINT)
-        
-        if manejar_colision(personaje['rect'], special_gun_list, musica["heavy_machine_gun_sound"]):
+
+        if manejar_colision(personaje, personaje['rect'], special_gun_list, musica["heavy_machine_gun_sound"]):
             print("heavy machine gun!!!!")
             manejar_special_attack_collision(personaje, 'fio_sprites\\HM_gun.png', 'fio_sprites\\heavy_machine_shoot.png', HEIGHT)
             personaje['balas_disponibles'] = 10  # Establezco la cantidad de balas que tiene el powerup
 
         if personaje['balas_disponibles'] == float('inf'):
             for bala in personaje['balas']:
-                if manejar_colision(bala['rect'], medusas_list, musica["medusa_explosion_sound"]):# Colisión de balas normales con medusas
+                if manejar_colision(personaje, bala['rect'], medusas_list, musica["medusa_explosion_sound"]):# Colisión de balas normales con medusas
                     personaje['balas'].remove(bala)
+                    score = actualizar_puntos(score, ENEMY_POINT)
         else:
-            
-            for special_bala in personaje['special_balas']:
-                if manejar_colision(special_bala['rect'], medusas_list, musica["medusa_explosion_sound"], special=True):# Colisión de balas especiales con medusas
-                    personaje['balas'].remove(bala)
-            
-        SCREEN.blit(fondo_game, (0, 0))  # Actualizar pantalla de juego antes de dibujar el personaje
-    
-        dibujar_contador_balas(SCREEN, personaje['balas_disponibles'])
-        dibujar_contador_puntos(SCREEN, score)
-        draw_objects(SCREEN, coins_list)
-        draw_objects(SCREEN, special_gun_list)
-        draw_objects(SCREEN, medusas_list)
-        dibujar_personaje(SCREEN, personaje) #dibujo al personaje
-        dibujar_balas(SCREEN, personaje)
-        tiempo_transcurrido = current_time - start_time
-        dibujar_temporizador(SCREEN, tiempo_transcurrido)
+            for special_bala in personaje['balas']:
+                if manejar_colision(personaje, special_bala['rect'], medusas_list, musica["medusa_explosion_sound"], special=True):# Colisión de balas especiales con medusas
+                    personaje['balas'].remove(special_bala)
+                    score = actualizar_puntos(score, ENEMY_POINT)
 
-        if not playing_music_flag:
-            mute_on(SCREEN)
+# Control de colisiones del personaje con medusas
+        if manejar_colision_con_personaje(personaje, medusas_list, musica["electric_medusa_sound"]):
+            if personaje['vidas'] <= 0:
+                pygame.mixer.Sound(musica['electric_medusa_killing_sound']).play()
+                pygame.mixer.Sound(musica['fio_death_sound']).play()
+                pygame.mixer_music.stop()
+                mostrando_animacion_muerte = True
+                mostrar_juego_flag = False
+                mostrar_game_over_flag = True
+                print("GAME OVEEEEEEEEEEEEEEER")
+                playing_music_flag = False
+                game_over_sonido = pygame.mixer.Sound(musica['game_over_sound']).play()
+                game_over_sonido.set_volume(0.2)
+        mostrar_juego(SCREEN, current_time, start_time, personaje, coins_list, special_gun_list, medusas_list, score, mostrando_animacion_muerte)
+        mostrando_animacion_muerte = False  # Desactivar la bandera después de mostrar la animación
+
+    elif mostrar_game_over_flag:
+        mostrar_game_over(SCREEN, score)
+        if pedir_nombre:
+            print("GAME OVER - Puntaje obtenido:", score)
+            # Pedir nombre por consola para guardar en el CSV
+            name = input("Ingrese su nombre para guardar en el ranking: ").strip()
+            while name == "":  # Validar que el nombre no esté vacío
+                print("El nombre no puede estar vacío.")
+                name = input("Ingrese su nombre para guardar en el ranking: ").strip()
+            guardado_exito = save_csv(score, name)
+        pedir_nombre = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False   
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if BOTON_BACK_TO_MENU.collidepoint(event.pos):
+                        
+                        pygame.mixer.Sound(musica["press_button_sound"]).play()
+                        mostrar_game_over_flag = False
+                        mostrar_inicio_flag = True #pido por consola un nickname
+                if BOTON_EXIT_GAME_OVER.collidepoint(event.pos):
+                    running = False
+
     pygame.display.flip()
     clock.tick(FPS)
 

@@ -6,7 +6,7 @@ pygame.init()
 
 def crear_personaje(x, y, velocidad, imagen_path, bala_path, screen_width, screen_height):
     imagen = pygame.image.load(imagen_path).convert_alpha()
-    imagen = pygame.transform.scale(imagen, PLAYER_SIZE)  # Cambiar el tamaño de la imagen del personaje
+    imagen = pygame.transform.scale(imagen, FIO_SIZE)  # Cambiar el tamaño de la imagen del personaje
     personaje = {
         'imagen': imagen,
         'imagen_default': imagen_path,  # Imagen del personaje por defecto
@@ -47,6 +47,10 @@ def dibujar_contador_vidas(pantalla, personaje):
     vida_1_imagen_path = pygame.image.load('images\\texto\\lifes_1.png').convert_alpha()
     vida_1_imagen_path = pygame.transform.scale(vida_1_imagen_path, (140, 16))
 
+    vida_0_imagen_path = pygame.image.load('images\\texto\\lifes_0.png').convert_alpha()
+    vida_0_imagen_path = pygame.transform.scale(vida_1_imagen_path, (140, 16))
+
+    vida_imagen = vida_3_imagen_path
     vida_x = 10
     vida_y = 8
 
@@ -54,17 +58,27 @@ def dibujar_contador_vidas(pantalla, personaje):
         vida_imagen = vida_3_imagen_path
     elif personaje['vidas'] == 2:
         vida_imagen = vida_2_imagen_path
-    else:
+    elif personaje['vidas'] == 1:
         vida_imagen = vida_1_imagen_path
+    elif personaje['vidas'] == 0: 
+        vida_imagen = vida_0_imagen_path
 
     pantalla.blit(vida_imagen, (vida_x, vida_y))
 
-def actualizar_vidas(personaje, cantidad):
-    personaje['vidas'] += cantidad
-    if personaje['vidas'] > 3:
-        personaje['vidas'] = 3
-    if personaje['vidas'] < 0:
-        personaje['vidas'] = 0
+#MUERTE PERSONAJE-----------------------------------------------------------------------------------
+def cargar_animacion_muerte(sprites_path_list, size):
+    animacion = []
+    for path in sprites_path_list:
+        imagen = pygame.image.load(path).convert_alpha()
+        imagen = pygame.transform.scale(imagen, size)
+        animacion.append(imagen)
+    return animacion
+
+def mostrar_animacion_muerte(SCREEN, personaje, animacion_muerte):
+    for frame in animacion_muerte:
+        SCREEN.blit(frame, (personaje['rect'].x, personaje['rect'].y))
+        pygame.display.flip()
+        pygame.time.wait(50)  # Esperar 100 milisegundos entre cada frame
 
 #SCORE COINS-------------------------------------------------------------------------------------------------
 
@@ -107,7 +121,7 @@ def disparar_bala(personaje):
         # Restaurar el personaje a su imagen por defecto si se quedan sin balas especiales
         if personaje['balas_disponibles'] == 0:
             personaje['imagen'] = pygame.image.load(personaje['imagen_default']).convert_alpha()
-            personaje['imagen'] = pygame.transform.scale(personaje['imagen'], PLAYER_SIZE)
+            personaje['imagen'] = pygame.transform.scale(personaje['imagen'], FIO_SIZE)
             personaje['bala_imagen_path'] = DEFAULT_PATH_BALA
             print("Se acabaron las balas especiales")
             

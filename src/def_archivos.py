@@ -1,3 +1,5 @@
+import pygame
+from settings import *
 #--------------------------------------------------------CSV
 def get_path_actual(nombre_archivo):
     import os
@@ -5,7 +7,7 @@ def get_path_actual(nombre_archivo):
     return os.path.join(directorio_actual, nombre_archivo)
 
 #LEE EL ARCHIVO     (name file que te pasen)  "READ", CON ESTO TRABAJO CON LA LISTA DE DICTS
-def cargar_archivo_csv(nombre, score, tiempo):
+def cargar_archivo_csv(nombre, score):
     """_summary_
 
     Args:
@@ -17,30 +19,31 @@ def cargar_archivo_csv(nombre, score, tiempo):
         for linea in archivo.readlines():
             scores = {}
             linea = linea.strip("\n").split(",")
-            nombre, score, tiempo = linea
+            nombre, score = linea
             scores["nombre"] = nombre
             scores["score"] = int(score)
-            scores["tiempo"] = float(tiempo)
             
             lista.append(scores)
 
-#CARGAR DATOS LISTA EN ARCHIVO NUEVO
-def crear_archivo_tipo(bike_type:str, lista_tipo:list):
-    with open(get_path_actual(bike_type + ".csv"), "w", encoding="utf-8") as archivo :
-        encabezado = ",".join(list(lista_tipo[0].keys())) + "\n"
-        archivo.write(encabezado)
-        for persona in lista_tipo:
-            values = list(persona.values())
-            l = []
-            for value in values:
-                if isinstance(value, int): 
-                    l.append(str(value))
-                elif isinstance(value, float): 
-                    l.append(str(value))
-                else:
-                    l.append(value)
-            linea = ",".join(l) + "\n"
-            archivo.write(linea)
+def save_csv(score, name):
+    with open('src/PUNTAJES.csv', 'a') as file:
+            file.write(f'{name},{score}\n')
+
+
+def show_csv(pantalla) -> None: #para mostrar la lista del csv en la pantalla de show_score
+    y = 130
+    x = 195 
+    with open('src\PUNTAJES.csv', 'r') as file:
+        file.readline()
+
+        for line in file.readlines():
+            # if file.readlines().index(line) > 10: 
+            #     break
+            line = line.strip('\n').split(',')
+            font = pygame.font.Font(None, 25)
+            texto_points = font.render(f'{line[0]}   --->   {line[1]}', True, BLACK)
+            pantalla.blit(texto_points, (x, y))  
+            y += 15 #para q cada score se dibuje 20pixls abajo del otro
 
 #--------------------------------------------------------JSON
 def get_path_actual(nombre_archivo):    #Obtiene la ruta completa del archivo en el directorio actual.
