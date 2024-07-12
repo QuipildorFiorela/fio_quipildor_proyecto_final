@@ -28,7 +28,6 @@ mostrar_view_scores_flag = False
 mostrando_animacion_muerte = False
 pedir_nombre = True
 
-
 # Variables de control----------------------------------------------------------------------------------
 running = True
 clock = pygame.time.Clock()
@@ -44,10 +43,9 @@ continuar = False
 #Cada estado (inicio, juego, game over) tiene su propia lógica para procesar eventos (pygame.event.get()) y actualizar la pantalla en consecuencia.
 #region Bucle del juego_________________________________________________________________________________________
 while running:
-    current_time = pygame.time.get_ticks() #tiempo actual en milisegundos desde que comenzó el juego
+    current_time = pygame.time.get_ticks() 
     # Pantalla inicial
     if mostrar_inicio_flag:
-        #creo al personaje y a los demas objetos cada vez que se entre al inicio para que vuelvan a su estado default al comenzar una nueva partida
         personaje = crear_personaje(HALF_WIDTH, HEIGHT -115, PLAYER_SPEED, DEFAULT_IMAGE_PATH_PLAYER, DEFAULT_PATH_BALA , WIDTH, HEIGHT)
 
         medusas_list = []
@@ -58,7 +56,7 @@ while running:
         coins_list = []
         load_object_list(coins_list, 'coin', 0, 'items_sprites\\coins.png')
         last_coin_spawn_time = 0
-        coin_spawn_interval = 2000  # Intervalo de tiempo en milisegundos para crear una nueva moneda
+        coin_spawn_interval = 2000 
 
         special_gun_list = []
         load_object_list(special_gun_list, 'special_gun', 0, 'items_sprites\\heavy_machine_gun.png')
@@ -67,18 +65,17 @@ while running:
 
         score = 0
         mostrar_pantalla_inicio(SCREEN)
-        # personaje = restart_personaje(personaje)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if BOTON_PLAY.collidepoint(event.pos): #si tocan el boton
+                if BOTON_PLAY.collidepoint(event.pos): 
                     pygame.mixer.Sound(musica["fio_start_game_sound"]).play()
                     pygame.mixer.music.stop() #paro la musica del menu
                     playing_music_flag = False
                     mostrar_inicio_flag = False
 
-                    pygame.time.wait(2000)# Establece el tiempo para mostrar "Mission Start" después de 2 segundos
+                    pygame.time.wait(2000)
                     mostrar_mission_start(SCREEN)
                     mostrar_juego_flag = True
                     start_time = pygame.time.get_ticks()
@@ -128,21 +125,20 @@ while running:
         pygame.display.flip()
 
     elif mostrar_juego_flag:
-        #Procesamiento de eventos-------------------
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:# disparar al presionar la flecha hacia arriba
+                if event.key == pygame.K_UP:
                         disparar_bala(personaje)
                         pygame.mixer.Sound(musica["basic_shoot_gun_sound"]).play()
-                if event.key == pygame.K_p:  # Pausar o reanudar el juego
+                if event.key == pygame.K_p: 
                     pause_on(SCREEN)
                     pause_duration = wait_user(pygame.K_p, playing_music_flag, start_time)
                     start_time += pause_duration
                 if event.key == pygame.K_m:
-                    playing_music_flag = not playing_music_flag #cuando se toca m, invierto el estado de la flag
-        if playing_music_flag: #not invierte un booleano
+                    playing_music_flag = not playing_music_flag #cuando se toca m,not invierte un booleano
+        if playing_music_flag: 
             pygame.mixer.music.unpause()
         else:
             mute_on(SCREEN)
@@ -220,7 +216,7 @@ while running:
             name = input("Ingrese su nombre para guardar en el ranking: ").strip()
             while name == "":  # Validar que el nombre no esté vacío
                 print("El nombre no puede estar vacío.")
-                name = input("Ingrese su nombre para guardar en el ranking: ").strip()
+                name = input("Ingrese su nombre para guardar en el ranking: ").strip()    
             guardado_exito = save_csv(score, name)
         pedir_nombre = False
         for event in pygame.event.get():
@@ -228,7 +224,6 @@ while running:
                 running = False   
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if BOTON_BACK_TO_MENU.collidepoint(event.pos):
-                        
                         pygame.mixer.Sound(musica["press_button_sound"]).play()
                         mostrar_game_over_flag = False
                         mostrar_inicio_flag = True #pido por consola un nickname

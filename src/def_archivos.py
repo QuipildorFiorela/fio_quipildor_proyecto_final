@@ -43,7 +43,7 @@ def show_csv(pantalla) -> None: #para mostrar la lista del csv en la pantalla de
             font = pygame.font.Font(None, 25)
             texto_points = font.render(f'{line[0]}   --->   {line[1]}', True, BLACK)
             pantalla.blit(texto_points, (x, y))  
-            y += 15 #para q cada score se dibuje 20pixls abajo del otro
+            y += 30 #para q cada score se dibuje 20pixls abajo del otro
 
 #--------------------------------------------------------JSON
 def get_path_actual(nombre_archivo):    #Obtiene la ruta completa del archivo en el directorio actual.

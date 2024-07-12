@@ -13,14 +13,14 @@ def crear_personaje(x, y, velocidad, imagen_path, bala_path, screen_width, scree
         'rect': pygame.Rect(x, y, 0, 0),
         'velocidad': velocidad,
         'screen_width': screen_width,
-        'vidas': 3,  # Vidas del personaje
+        'vidas': 3,  
         'balas': [],   # Lista para almacenar las balas disparadas por el personaje
         'special_balas': [],
-        'balas_disponibles': float('inf'),  # Balas disponibles (por defecto infinitas),
+        'balas_disponibles': float('inf'), 
         'bala_imagen_path': bala_path  # Imagen por defecto de la bala
     }
     personaje['rect'].size = personaje['imagen'].get_size()
-    personaje['rect'].bottom = screen_height  # Ajustar el bottom al crear el personaje
+    personaje['rect'].bottom = screen_height 
     return personaje
 
 def mover_personaje(personaje, direccion):
@@ -31,7 +31,6 @@ def mover_personaje(personaje, direccion):
 
 def dibujar_personaje(pantalla, personaje):
     pantalla.blit(personaje['imagen'], personaje['rect'].topleft)
-    # dibujar_contador_vidas(pantalla, personaje)
     dibujar_balas(pantalla, personaje)
     dibujar_contador_vidas(pantalla, personaje)
 
@@ -78,17 +77,16 @@ def mostrar_animacion_muerte(SCREEN, personaje, animacion_muerte):
     for frame in animacion_muerte:
         SCREEN.blit(frame, (personaje['rect'].x, personaje['rect'].y))
         pygame.display.flip()
-        pygame.time.wait(50)  # Esperar 100 milisegundos entre cada frame
+        pygame.time.wait(50)  #50miliseg entre cada frame
 
 #SCORE COINS-------------------------------------------------------------------------------------------------
 
 def dibujar_contador_puntos(pantalla, puntos):
     fondo_contador = pygame.image.load("images\\texto\\points.png").convert_alpha()
-    fondo_contador = pygame.transform.scale(fondo_contador, (80, 14))  # Ajusta el tamaño según sea necesario
+    fondo_contador = pygame.transform.scale(fondo_contador, (80, 14)) 
     font = pygame.font.Font(None, 22)
     texto_points = font.render(f"{puntos}", True, BLACK)
 
-    # Coordenadas para dibujar el fondo y el texto
     fondo_x = 10
     fondo_y = 30
     texto_x = fondo_x + 80  # Ajusta la posición X del texto
