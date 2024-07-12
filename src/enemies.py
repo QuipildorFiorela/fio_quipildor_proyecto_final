@@ -8,7 +8,7 @@ def create_enemy(enemy_type, image_path):
 
     if enemy_type == "medusa":
         enemy_width, enemy_height, speed = round(dimension*50), round(dimension*52), randint(3, 6)#round para descartar los decimales
-        vida = 2  # Vida de la medusa
+        vida = 2  
     else:
         raise ValueError("Tipo de enemigo no reconocido")
 
@@ -17,12 +17,3 @@ def create_enemy(enemy_type, image_path):
         obj['vida'] = vida
 
     return obj
-
-def create_rayo(medusa):
-    rayo = {
-        'rect': pygame.Rect(medusa['rect'].centerx, medusa['rect'].bottom, 5, 20),  # Tamaño y posición inicial del rayo
-        'speed': 7,  # Velocidad del rayo
-        'damage': 1  # Daño que hace al personaje
-    }
-    return rayo
-

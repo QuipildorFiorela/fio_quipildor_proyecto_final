@@ -25,7 +25,7 @@ def distancia_entre_puntos(pto_1:tuple[int, int], pto_2:tuple[int, int]) -> floa
 def manejar_colision(personaje, character_rect, object_list, collision_sound_path=None, special=False): #character rect es la hitbox con la cual comparo
     collision_sound_temp = pygame.mixer.Sound(collision_sound_path)
     for obj in object_list[:]:  # Guardar una copia de la lista para iterar
-        if character_rect.colliderect(obj["rect"]):  # la función colliderect() de Pygame, específicamente diseñada para detectar colisiones entre rectángulos.
+        if character_rect.colliderect(obj["rect"]):
             if obj['type'] == 'medusa':  # caso colisión con enemigo
                 if special:
                     obj['vida'] -= 2
@@ -49,7 +49,7 @@ def manejar_colision(personaje, character_rect, object_list, collision_sound_pat
 
 def manejar_colision_con_personaje(personaje, medusas_list, collision_sound_path=None):
     collision_sound_temp = pygame.mixer.Sound(collision_sound_path)
-    for medusa in medusas_list[:]:  # Guardar una copia de la lista para iterar
+    for medusa in medusas_list[:]:
         if personaje['rect'].colliderect(medusa['rect']):
             print("fio golpeada!!!!!!!")
             medusas_list.remove(medusa)
@@ -65,6 +65,6 @@ def manejar_special_attack_collision(personaje, nueva_imagen_path, nueva_bala_im
     personaje['imagen'] = pygame.image.load(nueva_imagen_path).convert_alpha()
     personaje['imagen'] = pygame.transform.scale(personaje['imagen'], FIO_SIZE)
     personaje['bala_imagen_path'] = nueva_bala_imagen_path
-    personaje['rect'].size = personaje['imagen'].get_size()  # Asegúrate de actualizar el rectángulo del personaje
-    personaje['rect'].bottom = screen_height  # Ajustar la posición del rectángulo del personaje
+    personaje['rect'].size = personaje['imagen'].get_size()  
+    personaje['rect'].bottom = screen_height  
     personaje['balas_disponibles'] += SPECIAL_BULLETS_QTY

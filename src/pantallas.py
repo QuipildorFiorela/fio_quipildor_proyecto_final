@@ -42,7 +42,7 @@ def mostrar_juego(pantalla, current_time, start_time, personaje, coins_list, spe
     death_sprites_path_list = ["fio_death_sprites\\electrical_death\\0.png", "fio_death_sprites\\electrical_death\\1.png", "fio_death_sprites\\electrical_death\\2.png", "fio_death_sprites\\electrical_death\\3.png", "fio_death_sprites\\electrical_death\\4.png", "fio_death_sprites\\electrical_death\\5.png"]
     image_death_sprites = cargar_animacion_muerte(death_sprites_path_list, FIO_DEATH_SPRITES_SIZE)
 
-    pantalla.blit((FONDO_GAME), (0, 0))  # Actualizar pantalla de juego antes de dibujar el personaje
+    pantalla.blit((FONDO_GAME), (0, 0)) 
 
     dibujar_contador_balas(pantalla, personaje['balas_disponibles'])
     dibujar_contador_puntos(pantalla, score)
@@ -53,7 +53,7 @@ def mostrar_juego(pantalla, current_time, start_time, personaje, coins_list, spe
         mostrar_animacion_muerte(pantalla, personaje, image_death_sprites)
         pygame.time.wait(1250)
     else:
-        dibujar_personaje(pantalla, personaje)  # Dibujar al personaje si no se está mostrando la animación de muerte
+        dibujar_personaje(pantalla, personaje)
         dibujar_balas(pantalla, personaje)
     tiempo_transcurrido = current_time - start_time
     dibujar_temporizador(pantalla, tiempo_transcurrido)
@@ -88,7 +88,6 @@ def mute_on(pantalla):
 
 def pause_on(pantalla):
     pause = pygame.image.load("images\\texto\\pause_game.png").convert_alpha()
-    # pause = pygame.transform.scale(pause, (100, 15))
     pantalla.blit(pause, (HALF_WIDTH - 120, HALF_HEIGHT - 50))
     pygame.display.update()
 
@@ -119,8 +118,6 @@ def wait_user(tecla, playing_music_flag, start_time):
 mission_sound_played = False  # variable para controlar la reproducción del sonido
 
 # TEMPORIZADOR ------------------------------------------------------------------------------------
-# start_timer = 0
-# # Función para mostrar el temporizador
 def dibujar_temporizador(pantalla, tiempo_transcurrido):
     font = pygame.font.Font(None, 36)
     minutos = tiempo_transcurrido // 60000 #división sin resto: divide el tiempo en milisegundos por un min en miliseg y toma el cociente

@@ -1,7 +1,7 @@
 from settings import *
 import pygame
 from random import randint
-#OBJETOS EN EL JUEGO: MONEDAS(PUNTOS), MANZANAS(+VIDA), HEAVY MACHINE GUN(ATAQUE ESPECIAL, +POTENCIA)
+#OBJETOS EN EL JUEGO: MONEDAS(PUNTOS), HEAVY MACHINE GUN(ATAQUE ESPECIAL+POTENCIA)
 
 def create_block(x, y, width, height, image_path, speed, object_type):
     image = pygame.image.load(image_path).convert_alpha()
@@ -9,7 +9,6 @@ def create_block(x, y, width, height, image_path, speed, object_type):
     rect = pygame.Rect(x, y, width, height)
     return {'image': image, 'rect': rect, 'speed': speed, 'type': object_type}
 
-# Función para crear un objeto genérico
 def create_object(object_type, image_path):
     object_width, object_height, speed = 0, 0, 0
     
@@ -26,12 +25,10 @@ def load_object_list(object_list, object_type, cantidad, image_path):
     for _ in range(cantidad): 
         object_list.append(create_object(object_type, image_path))
 
-### Paso 3: Dibujar los items en el juego
 def draw_objects(pantalla, object_list):
     for obj in object_list:
         pantalla.blit(obj["image"], obj["rect"])
 
-#la caída de los objetos
 def move_objects(object_list, screen_height):
     for obj in object_list:
         obj["rect"].y += obj["speed"]
